@@ -1,16 +1,13 @@
+// import { useNavigation } from '@react-navigation/native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react'
-import { TextInput } from 'react-native';
-import { TouchableOpacity } from 'react-native';
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { auth } from '../../utils/firebase';
 
-const SignupScreen = () => {
+const LoginScreen = () => {
 
-    const [name, setName] = useState<string>('');
     const [mobile, setMobile] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [repeatPassword, setRepeatPassword] = useState<string>('');
 
     const navigation = useNavigation();
 
@@ -19,7 +16,7 @@ const SignupScreen = () => {
             if(user) {
                 navigation.dispatch(
                     CommonActions.navigate({
-                        name: 'Home'
+                        name: 'Landing'
                     })
                 );
             }
@@ -28,70 +25,65 @@ const SignupScreen = () => {
         unsubscribe();
     }, []);
 
-    const registerHandler = () => {
+    const loginHandler = () => {
 
         /**
-         * TODO: check if email is valid
-         * TODO: check if user already exists
-         * TODO: check name validity
-         * TODO: all fields should be filled
+         * TODO: Handle user does not exist
+         * TODO: Handle wrong password
+         * TODO: Handle invalid email
+         * TODO: All fields should be filled
          */
 
-        if (password.length < 6) {
-            return alert('Password too short!');
-        }
-
-        if (password !== repeatPassword) {
-            return alert('Passwords do not match!');
-        }
-
-        auth.
-            createUserWithEmailAndPassword(auth.getAuth(), mobile, password)
+        auth
+            .signInWithEmailAndPassword(auth.getAuth(), mobile, password)
             .then(userCredentials => {
                 const user = userCredentials.user;
-                console.log("Created account for: " + user.email);
-
-                /**
-                 * TODO: save user in postgres database
-                 */
+                console.log("Logged in with: " + user.email);
 
                 navigation.dispatch(
                     CommonActions.navigate({
-                        name: 'Home'
+                        name: 'Landing'
                     })
                 );
             })
-            .catch(error => alert(error.message));
+            .catch(error => {
+                const errorStr = JSON.stringify(error);
+
+                if(errorStr.includes("user-not-found")) {
+                    return alert("User not found! Signup first!");
+                } else if(errorStr.includes("wrong-password")) {
+                    return alert("Invalid password!");
+                } else {
+                    return alert("Invalid user!");
+                }
+            });
     }
 
-    const loginClickHandler = () => {
+    const registerClickHandler = () => {
         navigation.dispatch(
             CommonActions.navigate({
-                name: 'Login'
+                name: 'Register'
             })
         );
     }
 
     return (
-        <View style={styles.container}>
+        <View
+            style={styles.container}
+            // behavior='padding'
+        >
             <View>
-                <Text style={styles.header}>Register</Text>
+                <Text style={styles.header}>Login</Text>
             </View>
             <View
                 style={styles.inputContainer}
             >
                 <TextInput 
-                    placeholder="Name"
-                    value={name}
-                    onChangeText={text => setName(text)}
-                    style={styles.input}
-                />
-                
-                <TextInput 
                     placeholder="Email Address"
                     value={mobile}
                     onChangeText={text => setMobile(text)}
                     style={styles.input}
+                    // keyboardType='numeric'
                 />
 
                 <TextInput 
@@ -101,36 +93,28 @@ const SignupScreen = () => {
                     style={styles.input}
                     secureTextEntry
                 />
-
-                <TextInput 
-                    placeholder="Repeat Password"
-                    value={repeatPassword}
-                    onChangeText={text => setRepeatPassword(text)}
-                    style={styles.input}
-                    secureTextEntry
-                />
             </View>
 
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
-                    onPress={registerHandler}
+                    onPress={loginHandler}
                     style={[styles.button]}
                 >
-                    <Text style={styles.buttonText}>Register</Text>
+                    <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    onPress={loginClickHandler}
+                    onPress={registerClickHandler}
                     style={[styles.button, styles.buttonOutline]}
                 >
-                    <Text style={styles.buttonOutlineText}>Back to Login</Text>
+                    <Text style={styles.buttonOutlineText}>New User? Register here</Text>
                 </TouchableOpacity>
             </View>
         </View>
     )
 }
 
-export default SignupScreen
+export default LoginScreen
 
 const styles = StyleSheet.create({
     container: {

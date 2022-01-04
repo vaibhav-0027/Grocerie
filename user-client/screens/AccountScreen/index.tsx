@@ -3,6 +3,8 @@ import { CommonActions, useNavigation } from '@react-navigation/native'
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { auth } from '../../utils/firebase'
+import client from "../../utils/grpcClient";
+import serverpb from "../../proto/server_pb";
 
 const AccountScreen = () => {
 
@@ -11,13 +13,24 @@ const AccountScreen = () => {
     const navigation = useNavigation();
 
     useEffect(() => {
+        const currentAuth = auth.getAuth();
 
-        auth.onAuthStateChanged(auth.getAuth(), (user) => {
+        auth.onAuthStateChanged(currentAuth, (user) => {
             if (user) {
-                setUserDetails({
-                    name: "Vaibhav",
-                    mobile: 7814664315,
-                    uid: user.uid,
+                const param = new serverpb.GetUserDetailsRequest();
+                param.setFirebaseId(user.uid);
+
+                client.getUserDetails(param, {}, (err: Error, resp: serverpb.GetUserDetailsResponse) => {
+                    if (err) {
+                        console.log("Some error occured", err, resp);
+                        return alert(err.message);
+                    }
+        
+                    setUserDetails({
+                        name: resp.getName(),
+                        mobile: resp.getMobile(),
+                        uid: resp.getId(),
+                    });
                 })
             } else {
                 letsNavigate("Login");
@@ -62,12 +75,30 @@ const AccountScreen = () => {
     }
 
     const saveNameHandler = () => {
-        // save new username in database
 
         if(userDetails.name.trim().length === 0) {
             return alert("Name cannot be empty!");
         }
-        setEditingName(false);
+
+        const updatedUser = new serverpb.UpdateUserDetailsRequest();
+        updatedUser.setId(userDetails.id);
+        updatedUser.setName(userDetails.name);
+
+        client.updateUserDetails(updatedUser, {}, (err: Error, resp: serverpb.UpdateUserDetailsResponse) => {
+
+            if(err) {
+                console.error("Some error occurred: ", err);
+                return alert(err.message);
+            }
+
+            const status = resp.getStatus();
+            if(status !== "OK") {
+                return alert("Something went wrong!!")
+            }
+
+            setEditingName(false);
+        });
+
     }
 
     const _renderUserDetails = () => {

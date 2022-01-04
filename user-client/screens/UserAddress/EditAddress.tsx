@@ -1,8 +1,14 @@
 import { AntDesign } from '@expo/vector-icons'
 import * as React from 'react'
-import { Modal, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Modal, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
 
 const EditAddress = (props: any) => {
+
+    const [info, setInfo] = React.useState(props.info);
+
+    React.useEffect(() => {
+        setInfo(props.info);
+    }, [props.info]);
 
     const _renderModalHeader = () => {
         return (
@@ -36,11 +42,38 @@ const EditAddress = (props: any) => {
         )
     }
 
+    const _renderMap = () => {
+        return (
+            <View>
+                <Text>map component</Text>
+            </View>
+        )
+    }
+
     const _renderForm = () => {
         return (
-            <Text>
-                Form comes here!
-            </Text>
+            <View>
+                <Text>House address/Flat number*</Text>
+                <TextInput
+                    value={info.houseAddress}
+                    style={styles.inputField}
+                    onChangeText={text => setInfo({...info, 'houseAddress': text})}
+                />
+
+                <Text>Locality*</Text>
+                <TextInput
+                    value={info.area}
+                    style={styles.inputField}
+                    onChangeText={text => setInfo({...info, 'area': text})}
+                />
+
+                <Text>Landmark (optional)</Text>
+                <TextInput
+                    value={info.landmark}
+                    style={styles.inputField}
+                    onChangeText={text => setInfo({...info, 'landmark': text})}
+                />
+            </View>
         )
     }
 
@@ -61,6 +94,7 @@ const EditAddress = (props: any) => {
                     padding: 20,
                 }}>
                     { _renderModalHeader() }
+                    { _renderMap() }
                     { _renderForm() }
                 </View>
             </View>
@@ -121,4 +155,13 @@ const styles = StyleSheet.create({
         right: 0,
         backgroundColor: 'rgba(0,0,0,0.5)'
     },
+    inputField: {
+        borderWidth: 1,
+        borderColor: 'gray',
+        // color: 'green',
+        fontWeight: 'bold',
+        borderRadius: 5,
+        paddingHorizontal: 4,
+        paddingVertical: 6,
+    }
 })

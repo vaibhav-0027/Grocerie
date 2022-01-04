@@ -6,11 +6,19 @@ import { myAddressesDummy } from '../../utils/dummyData';
 import EditAddress from './EditAddress';
 import SingleAddress from './SingleAddress';
 
+const initInfo = {
+    houseAddress: '',
+    area: '',
+    landmark: '',
+    id: '',
+};
+
 const UserAddresses = () => {
 
     const [showModal, setShowModal] = useState(false);
     const [addresses, setAddresses] = useState<any>([]);
-    const [currentInfo, setCurrentInfo] = useState<any>();
+    const [currentInfo, setCurrentInfo] = useState<any>(initInfo);
+    console.log(currentInfo);
 
     useEffect(() => {
         setAddresses(myAddressesDummy);
@@ -21,7 +29,7 @@ const UserAddresses = () => {
     }
 
     const addNewAddressHandler = () => {
-        setCurrentInfo(null);
+        setCurrentInfo(initInfo);
         return toggleShowModal();
     }
 
@@ -83,7 +91,7 @@ const UserAddresses = () => {
             <EditAddress 
                 visible={showModal}
                 toggleVisible={toggleShowModal}
-                createNew={currentInfo === null}
+                createNew={currentInfo.id === ''}
                 info={currentInfo}
             />
         </ScrollView>

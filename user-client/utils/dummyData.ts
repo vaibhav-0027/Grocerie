@@ -145,7 +145,6 @@ export const myAddressesDummy = [
         houseAddress: '5 Adarsh Nagar',
         area: 'near Dhawan colony gurudwara',
         landmark: '',
-        directions: '',
     },
     {
         id: 'address-2',
@@ -154,6 +153,5 @@ export const myAddressesDummy = [
         houseAddress: '2 Kanshi nagri hemkunt encloave',
         area: 'near josan dairy',
         landmark: '',
-        directions: '',
     },
 ]

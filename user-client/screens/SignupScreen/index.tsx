@@ -1,13 +1,18 @@
-// import { useNavigation } from '@react-navigation/native';
 import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react'
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { TextInput } from 'react-native';
+import { TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native'
 import { auth } from '../../utils/firebase';
+import client from "../../utils/grpcClient";
+import serverpb from "../../proto/server_pb";
 
-const LoginScreen = () => {
+const SignupScreen = () => {
 
+    const [name, setName] = useState<string>('');
     const [mobile, setMobile] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [repeatPassword, setRepeatPassword] = useState<string>('');
 
     const navigation = useNavigation();
 
@@ -25,55 +30,83 @@ const LoginScreen = () => {
         unsubscribe();
     }, []);
 
-    const loginHandler = () => {
+    const registerHandler = () => {
 
         /**
-         * TODO: Handle user does not exist
-         * TODO: Handle wrong password
-         * TODO: Handle invalid email
-         * TODO: All fields should be filled
+         * TODO: check if email is valid
+         * TODO: check if user already exists
+         * TODO: check name validity
+         * TODO: all fields should be filled
          */
 
-        auth
-            .signInWithEmailAndPassword(auth.getAuth(), mobile, password)
+        if (password.length < 6) {
+            return alert('Password too short!');
+        }
+
+        if (password !== repeatPassword) {
+            return alert('Passwords do not match!');
+        }
+
+        auth.
+            createUserWithEmailAndPassword(auth.getAuth(), mobile, password)
             .then(userCredentials => {
                 const user = userCredentials.user;
-                console.log("Logged in with: " + user.email);
 
-                navigation.dispatch(
-                    CommonActions.navigate({
-                        name: 'Home'
-                    })
-                );
+                const newUser = new serverpb.RegisterUserRequest();
+                newUser.setName(name);
+                newUser.setMobile(mobile);
+                newUser.setFirebaseId(user.uid);
+
+                client.registerUser(newUser, {}, (err, resp) => {
+                    if (err) {
+                        console.log("Some error occurred!!", err)
+                        return alert(err.message);
+                    }
+
+                    const status = resp.getStatus();
+                    if(status !== "OK") {
+                        return alert("Something went wrong!!")
+                    }
+
+                    navigation.dispatch(
+                        CommonActions.navigate({
+                            name: 'Landing'
+                        })
+                    );
+                })
+
             })
             .catch(error => alert(error.message));
     }
 
-    const registerClickHandler = () => {
+    const loginClickHandler = () => {
         navigation.dispatch(
             CommonActions.navigate({
-                name: 'Register'
+                name: 'Login'
             })
         );
     }
 
     return (
-        <View
-            style={styles.container}
-            // behavior='padding'
-        >
+        <View style={styles.container}>
             <View>
-                <Text style={styles.header}>Login</Text>
+                <Text style={styles.header}>Register</Text>
             </View>
             <View
                 style={styles.inputContainer}
             >
                 <TextInput 
+                    placeholder="Name"
+                    value={name}
+                    onChangeText={text => setName(text)}
+                    style={styles.input}
+                />
+                
+                <TextInput 
                     placeholder="Email Address"
                     value={mobile}
                     onChangeText={text => setMobile(text)}
                     style={styles.input}
-                    // keyboardType='numeric'
                 />
 
                 <TextInput 
@@ -83,28 +116,36 @@ const LoginScreen = () => {
                     style={styles.input}
                     secureTextEntry
                 />
+
+                <TextInput 
+                    placeholder="Repeat Password"
+                    value={repeatPassword}
+                    onChangeText={text => setRepeatPassword(text)}
+                    style={styles.input}
+                    secureTextEntry
+                />
             </View>
 
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
-                    onPress={loginHandler}
+                    onPress={registerHandler}
                     style={[styles.button]}
                 >
-                    <Text style={styles.buttonText}>Login</Text>
+                    <Text style={styles.buttonText}>Register</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                    onPress={registerClickHandler}
+                    onPress={loginClickHandler}
                     style={[styles.button, styles.buttonOutline]}
                 >
-                    <Text style={styles.buttonOutlineText}>New User? Register here</Text>
+                    <Text style={styles.buttonOutlineText}>Back to Login</Text>
                 </TouchableOpacity>
             </View>
         </View>
     )
 }
 
-export default LoginScreen
+export default SignupScreen
 
 const styles = StyleSheet.create({
     container: {
