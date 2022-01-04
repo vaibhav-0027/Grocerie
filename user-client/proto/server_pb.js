@@ -624,7 +624,8 @@ proto.serverpb.Address.toObject = function(includeInstance, msg) {
     othername: jspb.Message.getFieldWithDefault(msg, 3, ""),
     houseaddress: jspb.Message.getFieldWithDefault(msg, 4, ""),
     area: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    landmark: jspb.Message.getFieldWithDefault(msg, 6, "")
+    landmark: jspb.Message.getFieldWithDefault(msg, 6, ""),
+    userid: jspb.Message.getFieldWithDefault(msg, 7, "")
   };
 
   if (includeInstance) {
@@ -684,6 +685,10 @@ proto.serverpb.Address.deserializeBinaryFromReader = function(msg, reader) {
     case 6:
       var value = /** @type {string} */ (reader.readString());
       msg.setLandmark(value);
+      break;
+    case 7:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setUserid(value);
       break;
     default:
       reader.skipField();
@@ -753,6 +758,13 @@ proto.serverpb.Address.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       6,
+      f
+    );
+  }
+  f = message.getUserid();
+  if (f.length > 0) {
+    writer.writeString(
+      7,
       f
     );
   }
@@ -864,6 +876,24 @@ proto.serverpb.Address.prototype.getLandmark = function() {
  */
 proto.serverpb.Address.prototype.setLandmark = function(value) {
   return jspb.Message.setProto3StringField(this, 6, value);
+};
+
+
+/**
+ * optional string userId = 7;
+ * @return {string}
+ */
+proto.serverpb.Address.prototype.getUserid = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.serverpb.Address} returns this
+ */
+proto.serverpb.Address.prototype.setUserid = function(value) {
+  return jspb.Message.setProto3StringField(this, 7, value);
 };
 
 
@@ -1150,7 +1180,8 @@ proto.serverpb.MenuItem.toObject = function(includeInstance, msg) {
     price: jspb.Message.getFieldWithDefault(msg, 3, 0),
     category: jspb.Message.getFieldWithDefault(msg, 4, ""),
     bestseller: jspb.Message.getBooleanFieldWithDefault(msg, 5, false),
-    weight: jspb.Message.getFieldWithDefault(msg, 6, 0)
+    weight: jspb.Message.getFieldWithDefault(msg, 6, 0),
+    shopid: jspb.Message.getFieldWithDefault(msg, 7, "")
   };
 
   if (includeInstance) {
@@ -1210,6 +1241,10 @@ proto.serverpb.MenuItem.deserializeBinaryFromReader = function(msg, reader) {
     case 6:
       var value = /** @type {number} */ (reader.readInt32());
       msg.setWeight(value);
+      break;
+    case 7:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setShopid(value);
       break;
     default:
       reader.skipField();
@@ -1279,6 +1314,13 @@ proto.serverpb.MenuItem.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0) {
     writer.writeInt32(
       6,
+      f
+    );
+  }
+  f = message.getShopid();
+  if (f.length > 0) {
+    writer.writeString(
+      7,
       f
     );
   }
@@ -1393,6 +1435,24 @@ proto.serverpb.MenuItem.prototype.setWeight = function(value) {
 };
 
 
+/**
+ * optional string shopId = 7;
+ * @return {string}
+ */
+proto.serverpb.MenuItem.prototype.getShopid = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.serverpb.MenuItem} returns this
+ */
+proto.serverpb.MenuItem.prototype.setShopid = function(value) {
+  return jspb.Message.setProto3StringField(this, 7, value);
+};
+
+
 
 
 
@@ -1431,7 +1491,8 @@ proto.serverpb.Order.toObject = function(includeInstance, msg) {
     shopid: jspb.Message.getFieldWithDefault(msg, 4, ""),
     deliveryrating: jspb.Message.getFieldWithDefault(msg, 5, 0),
     foodrating: jspb.Message.getFieldWithDefault(msg, 6, 0),
-    orderdetails: jspb.Message.getFieldWithDefault(msg, 7, "")
+    orderdetails: jspb.Message.getFieldWithDefault(msg, 7, ""),
+    userid: jspb.Message.getFieldWithDefault(msg, 8, "")
   };
 
   if (includeInstance) {
@@ -1495,6 +1556,10 @@ proto.serverpb.Order.deserializeBinaryFromReader = function(msg, reader) {
     case 7:
       var value = /** @type {string} */ (reader.readString());
       msg.setOrderdetails(value);
+      break;
+    case 8:
+      var value = /** @type {string} */ (reader.readString());
+      msg.setUserid(value);
       break;
     default:
       reader.skipField();
@@ -1571,6 +1636,13 @@ proto.serverpb.Order.serializeBinaryToWriter = function(message, writer) {
   if (f.length > 0) {
     writer.writeString(
       7,
+      f
+    );
+  }
+  f = message.getUserid();
+  if (f.length > 0) {
+    writer.writeString(
+      8,
       f
     );
   }
@@ -1700,6 +1772,24 @@ proto.serverpb.Order.prototype.getOrderdetails = function() {
  */
 proto.serverpb.Order.prototype.setOrderdetails = function(value) {
   return jspb.Message.setProto3StringField(this, 7, value);
+};
+
+
+/**
+ * optional string userId = 8;
+ * @return {string}
+ */
+proto.serverpb.Order.prototype.getUserid = function() {
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 8, ""));
+};
+
+
+/**
+ * @param {string} value
+ * @return {!proto.serverpb.Order} returns this
+ */
+proto.serverpb.Order.prototype.setUserid = function(value) {
+  return jspb.Message.setProto3StringField(this, 8, value);
 };
 
 

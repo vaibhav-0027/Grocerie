@@ -3,25 +3,50 @@ import * as React from 'react'
 import { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { myAddressesDummy } from '../../utils/dummyData';
+import { getUserIdLocal } from '../../utils/localStorage/userId';
 import EditAddress from './EditAddress';
 import SingleAddress from './SingleAddress';
+import client from "../../utils/grpcClient";
+import serverpb from "../../proto/server_pb";
 
-const initInfo = {
+let initInfo = {
     houseAddress: '',
     area: '',
     landmark: '',
     id: '',
+    savedAs: '',
+    otherName: '',
+    userId: '',
 };
 
 const UserAddresses = () => {
 
     const [showModal, setShowModal] = useState(false);
-    const [addresses, setAddresses] = useState<any>([]);
+    const [addresses, setAddresses] = useState<serverpb.Address[]>([]);
     const [currentInfo, setCurrentInfo] = useState<any>(initInfo);
-    console.log(currentInfo);
+
+    console.log(addresses);
+    
+    const fetchUserAddresses = (userId: string) => {
+        const reqParam = new serverpb.GetUserAddressRequest();
+        reqParam.setUserid(userId);
+        
+        client.getUserAddress(reqParam, null, (err: Error, resp: serverpb.GetUserAddressResponse) => {
+            if(err) {
+                console.error("Something went wrong!", err);
+                alert(err.message);
+            }
+
+            setAddresses(resp.getAddressList());
+        });
+    }
 
     useEffect(() => {
-        setAddresses(myAddressesDummy);
+        getUserIdLocal().then((val: string) => {
+            initInfo.userId = val;
+            setCurrentInfo(initInfo);
+            fetchUserAddresses(val);
+        });
     }, []);
 
     const toggleShowModal = () => {
@@ -76,7 +101,7 @@ const UserAddresses = () => {
             { _renderAddNewAddress() }
 
             { 
-                addresses.map((_info: any, idx: number) => {
+                addresses.map((_info: serverpb.Address, idx: number) => {
                     return (
                         <SingleAddress
                             info={_info}
@@ -93,6 +118,7 @@ const UserAddresses = () => {
                 toggleVisible={toggleShowModal}
                 createNew={currentInfo.id === ''}
                 info={currentInfo}
+                setAddresses={setAddresses}
             />
         </ScrollView>
     )

@@ -21,6 +21,9 @@ export class Address extends jspb.Message {
   getLandmark(): string;
   setLandmark(value: string): Address;
 
+  getUserid(): string;
+  setUserid(value: string): Address;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Address.AsObject;
   static toObject(includeInstance: boolean, msg: Address): Address.AsObject;
@@ -37,6 +40,7 @@ export namespace Address {
     houseaddress: string,
     area: string,
     landmark: string,
+    userid: string,
   }
 }
 
@@ -91,6 +95,9 @@ export class MenuItem extends jspb.Message {
   getWeight(): number;
   setWeight(value: number): MenuItem;
 
+  getShopid(): string;
+  setShopid(value: string): MenuItem;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): MenuItem.AsObject;
   static toObject(includeInstance: boolean, msg: MenuItem): MenuItem.AsObject;
@@ -107,6 +114,7 @@ export namespace MenuItem {
     category: string,
     bestseller: boolean,
     weight: number,
+    shopid: string,
   }
 }
 
@@ -132,6 +140,9 @@ export class Order extends jspb.Message {
   getOrderdetails(): string;
   setOrderdetails(value: string): Order;
 
+  getUserid(): string;
+  setUserid(value: string): Order;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Order.AsObject;
   static toObject(includeInstance: boolean, msg: Order): Order.AsObject;
@@ -149,6 +160,7 @@ export namespace Order {
     deliveryrating: number,
     foodrating: number,
     orderdetails: string,
+    userid: string,
   }
 }
 

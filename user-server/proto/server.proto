@@ -10,6 +10,7 @@ message Address {
     string houseAddress = 4;
     string area = 5;
     string landmark = 6;
+    string userId = 7;
 }
 
 message Shop {
@@ -26,6 +27,7 @@ message MenuItem {
     string category = 4;
     bool bestSeller = 5;
     int32 weight = 6;
+    string shopId = 7;
 }
 
 message Order {
@@ -36,6 +38,7 @@ message Order {
     int32 deliveryRating = 5;
     int32 foodRating = 6;
     string orderDetails = 7;
+    string userId = 8;
 }
 
 message RegisterUserRequest {

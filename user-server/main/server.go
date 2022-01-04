@@ -9,6 +9,7 @@ import (
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/lib/pq"
+	"github.com/vaibhav-0027/Grocerie/db"
 	"github.com/vaibhav-0027/Grocerie/handlers"
 	serverpb "github.com/vaibhav-0027/Grocerie/proto"
 	"google.golang.org/grpc"
@@ -21,6 +22,9 @@ var orderHandler handlers.OrderHandler
 
 func init() {
 	userHandler = handlers.NewUserHandler()
+	addressHandler = handlers.NewAddressHandler()
+	shopHandler = handlers.NewShopHandler()
+	orderHandler = handlers.NewOrderHandler()
 
 	fmt.Println("Connecting to PostgreSQL...")
 
@@ -59,5 +63,6 @@ func main() {
 	fmt.Println("Closing the listener...")
 	listener.Close()
 
-	fmt.Println("TODO: Close the postgres connection...")
+	fmt.Println("Closing the postgres connection...")
+	db.DB().Close()
 }

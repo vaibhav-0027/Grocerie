@@ -1,19 +1,27 @@
 import { Entypo } from '@expo/vector-icons';
 import * as React from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import serverpb from "../../proto/server_pb";
 
 type SingleAddressProps = {
-
+    info: serverpb.Address;
+    showModal: () => void;
+    setCurrentInfo: (props: any) => void;
 }
 
-const SingleAddress = (props: any) => {
+const SingleAddress = (props: SingleAddressProps) => {
 
     const { info } = props;
 
+    const savedAs = info.getSavedas();
+    const houseAddress = info.getHouseaddress();
+    const area = info.getArea();
+    const otherName = info.getOthername();
+
     const iconName = (() => {
-        if(info.savedAs === 'Home') {
+        if(savedAs === 'Home') {
             return 'home'
-        } else if(info.savedAs === 'Work') {
+        } else if(savedAs === 'Work') {
             return 'briefcase'
         } else {
             return 'location-pin'
@@ -35,15 +43,15 @@ const SingleAddress = (props: any) => {
                     fontWeight: 'bold',
                     fontSize: 20,
                 }}>
-                    { info.savedAs === 'Other' ? info.otherName : info.savedAs }
+                    { savedAs === 'Other' ? otherName : savedAs }
                 </Text>
 
                 <Text numberOfLines={1}>
-                    { info.houseAddress }
+                    { houseAddress }
                 </Text>
 
                 <Text numberOfLines={1}>
-                    { info.area }
+                    { area }
                 </Text>
             </View>
         )

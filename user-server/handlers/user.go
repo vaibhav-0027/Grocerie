@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jinzhu/gorm"
-	"github.com/vaibhav-0027/Grocerie/db"
 	"github.com/vaibhav-0027/Grocerie/models"
 	serverpb "github.com/vaibhav-0027/Grocerie/proto"
 	"google.golang.org/grpc/codes"
@@ -24,8 +22,6 @@ type userHandler struct {
 func NewUserHandler() UserHandler {
 	return &userHandler{}
 }
-
-var repo *gorm.DB = db.DB()
 
 func (h *userHandler) RegisterUser(ctx context.Context, req *serverpb.RegisterUserRequest) (*serverpb.RegisterUserResponse, error) {
 	fmt.Printf("RegisterUser method invoked for: %+v", req)

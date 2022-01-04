@@ -5,6 +5,7 @@ import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-nativ
 import { auth } from '../../utils/firebase'
 import client from "../../utils/grpcClient";
 import serverpb from "../../proto/server_pb";
+import { setUserIdLocal } from '../../utils/localStorage/userId'
 
 const AccountScreen = () => {
 
@@ -20,11 +21,13 @@ const AccountScreen = () => {
                 const param = new serverpb.GetUserDetailsRequest();
                 param.setFirebaseId(user.uid);
 
-                client.getUserDetails(param, {}, (err: Error, resp: serverpb.GetUserDetailsResponse) => {
+                client.getUserDetails(param, {}, async (err: Error, resp: serverpb.GetUserDetailsResponse) => {
                     if (err) {
                         console.log("Some error occured", err, resp);
                         return alert(err.message);
                     }
+
+                    await setUserIdLocal(resp.getId());
         
                     setUserDetails({
                         name: resp.getName(),

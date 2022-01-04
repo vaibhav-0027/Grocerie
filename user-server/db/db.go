@@ -41,6 +41,7 @@ func DB() *gorm.DB {
 	db.LogMode(true)
 	// Make migrations to the database if they have not already been created
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Address{})
 
 	return db
 }

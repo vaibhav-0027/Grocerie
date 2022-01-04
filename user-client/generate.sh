@@ -6,7 +6,7 @@
 PROTOC_GEN_TS_PATH="./node_modules/.bin/protoc-gen-ts"
 
 # Directory to write generated code to (.js and .d.ts files)
-OUT_DIR="."
+OUT_DIR="./proto"
 
 # error might occur when running this script.
 # for successfully running this script, we need to install 
