@@ -2,7 +2,6 @@ import { AntDesign } from '@expo/vector-icons'
 import * as React from 'react'
 import { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { myAddressesDummy } from '../../utils/dummyData';
 import { getUserIdLocal } from '../../utils/localStorage/userId';
 import EditAddress from './EditAddress';
 import SingleAddress from './SingleAddress';
@@ -24,8 +23,6 @@ const UserAddresses = () => {
     const [showModal, setShowModal] = useState(false);
     const [addresses, setAddresses] = useState<serverpb.Address[]>([]);
     const [currentInfo, setCurrentInfo] = useState<any>(initInfo);
-
-    console.log(addresses);
     
     const fetchUserAddresses = (userId: string) => {
         const reqParam = new serverpb.GetUserAddressRequest();

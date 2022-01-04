@@ -95,7 +95,8 @@ func (h *userHandler) UpdateUserDetails(ctx context.Context, req *serverpb.Updat
 
 	updatedUser := &models.User{}
 
-	resp := repo.First(&updatedUser, userId)
+	// resp := repo.First(&updatedUser, userId)
+	resp := repo.Where("id = ?", userId).Find(&updatedUser)
 
 	if resp.RowsAffected == 0 {
 		return nil, status.Errorf(

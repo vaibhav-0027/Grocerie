@@ -84,11 +84,66 @@ func (h *addressHandler) AddNewAddress(ctx context.Context, req *serverpb.AddNew
 func (h *addressHandler) UpdateAddress(ctx context.Context, req *serverpb.UpdateAddressRequest) (*serverpb.UpdateAddressResponse, error) {
 	fmt.Printf("UpdateAddress method was invoked by: %+v\n", req)
 
-	return nil, nil
+	addressId := req.GetAddress().GetId()
+	updatedAddress := &models.Address{}
+
+	resp := repo.Where("id = ?", addressId).Find(&updatedAddress)
+
+	if resp.RowsAffected == 0 {
+		fmt.Printf("Something went wrong while fetching address: %+v\n", resp.Error)
+
+		return nil, status.Errorf(
+			codes.NotFound,
+			"Address not found",
+		)
+	}
+
+	updatedAddress.Area = req.GetAddress().GetArea()
+	updatedAddress.HouseAddress = req.GetAddress().GetHouseAddress()
+	updatedAddress.Landmark = req.GetAddress().GetLandmark()
+	updatedAddress.OtherName = req.GetAddress().OtherName
+	updatedAddress.SavedAs = req.GetAddress().GetSavedAs()
+
+	resp = repo.Save(&updatedAddress)
+
+	if resp.Error != nil {
+		return nil, status.Errorf(
+			codes.Internal,
+			"Could not update address! Please try again!",
+		)
+	}
+
+	return &serverpb.UpdateAddressResponse{
+		Address: &serverpb.Address{
+			Id:           updatedAddress.ID.String(),
+			SavedAs:      updatedAddress.SavedAs,
+			OtherName:    updatedAddress.OtherName,
+			HouseAddress: updatedAddress.HouseAddress,
+			Area:         updatedAddress.Area,
+			Landmark:     updatedAddress.Landmark,
+			UserId:       updatedAddress.UserID,
+		},
+	}, nil
 }
 
 func (h *addressHandler) DeleteAddress(ctx context.Context, req *serverpb.DeleteAddressRequest) (*serverpb.DeleteAddressResponse, error) {
 	fmt.Printf("DeleteAddress method was invoked by: %+v\n", req)
 
-	return nil, nil
+	addressId := req.GetAddressId()
+
+	// resp := repo.Delete(&models.Address{}, addressId)
+	resp := repo.Where("id = ?", addressId).Delete(&models.Address{})
+
+	if resp.RowsAffected == 0 {
+		fmt.Printf("Something went wrong while deleting: %+v\n", resp.Error)
+
+		return nil, status.Errorf(
+			codes.NotFound,
+			"No address found! Please try again!",
+		)
+	}
+
+	return &serverpb.DeleteAddressResponse{
+		Status: "OK",
+	}, nil
 }

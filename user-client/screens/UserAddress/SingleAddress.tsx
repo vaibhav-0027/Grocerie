@@ -29,7 +29,15 @@ const SingleAddress = (props: SingleAddressProps) => {
     })();
     
     const editButtonPressHandler = () => {
-        props.setCurrentInfo(info);
+        props.setCurrentInfo({
+            houseAddress,
+            area,
+            landmark: info.getLandmark(),
+            id: info.getId(),
+            savedAs,
+            otherName,
+            userId: info.getUserid(),
+        });
         return props.showModal();
     }
     
