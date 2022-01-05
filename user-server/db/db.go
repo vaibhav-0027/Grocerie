@@ -42,6 +42,8 @@ func DB() *gorm.DB {
 	// Make migrations to the database if they have not already been created
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.Address{})
+	db.AutoMigrate(&models.Shop{})
+	db.AutoMigrate(&models.Menu{})
 
 	return db
 }

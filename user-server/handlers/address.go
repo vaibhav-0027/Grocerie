@@ -28,7 +28,7 @@ func (h *addressHandler) GetUserAddress(ctx context.Context, req *serverpb.GetUs
 	fmt.Printf("GetUserAddress method was invoked by: %+v\n", req)
 
 	userId := req.GetUserId()
-	list := []*serverpb.Address{}
+	list := []*models.Address{}
 
 	resp := repo.Where("user_id = ?", userId).Find(&list)
 	if resp.Error != nil {
@@ -40,8 +40,24 @@ func (h *addressHandler) GetUserAddress(ctx context.Context, req *serverpb.GetUs
 		)
 	}
 
+	respList := []*serverpb.Address{}
+
+	for _, _address := range list {
+		temp := &serverpb.Address{
+			Id:           _address.ID.String(),
+			SavedAs:      _address.SavedAs,
+			OtherName:    _address.OtherName,
+			HouseAddress: _address.HouseAddress,
+			Area:         _address.Area,
+			Landmark:     _address.Landmark,
+			UserId:       _address.UserID,
+		}
+
+		respList = append(respList, temp)
+	}
+
 	return &serverpb.GetUserAddressResponse{
-		Address: list,
+		Address: respList,
 	}, nil
 }
 
