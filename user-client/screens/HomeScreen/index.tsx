@@ -1,9 +1,26 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import { shopList } from '../../utils/dummyData'
 import SingleShop from './SingleShop'
+import serverpb from "../../proto/server_pb";
+import grpcClient from '../../utils/grpcClient';
 
 const HomeScreen = () => {
+
+    const [shopList, setShopList] = useState<serverpb.Shop[]>([]);
+
+    useEffect(() => {
+        const reqParam = new serverpb.GetShopListRequest();
+
+        grpcClient.getShopList(reqParam, null, (err: Error, resp: serverpb.GetShopListResponse) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+
+            setShopList(resp.getShopsList())
+        });
+    }, []);
 
     const _renderShopList = () => {
         return (
@@ -17,8 +34,16 @@ const HomeScreen = () => {
                 </View>
 
                 {
-                    shopList.map((data, idx) => {
-                        return <SingleShop id={data.id} key={idx} name={data.name} />
+                    shopList.map((data: serverpb.Shop, idx: number) => {
+                        return (
+                            <SingleShop 
+                                id={data.getId()} 
+                                key={idx} 
+                                name={data.getName()}
+                                typesList={data.getTypesList()}
+                                locality={data.getLocality()}
+                            />
+                        )
                     })
                 }
             </ScrollView>

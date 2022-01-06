@@ -4,7 +4,9 @@ import * as React from 'react'
 import { useState, useEffect } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import SelectDropdown from 'react-native-select-dropdown'
-import { myAddressesDummy } from '../../utils/dummyData'
+import grpcClient from '../../utils/grpcClient';
+import serverpb from "../../proto/server_pb";
+import { getUserIdLocal } from '../../utils/localStorage/userId'
 
 type AddressSelectorProps = {
     addressId: string;
@@ -13,14 +15,31 @@ type AddressSelectorProps = {
 
 const AddressSelector = (props: AddressSelectorProps) => {
 
-    const [data, setData] = useState<any>([]);
+    const [data, setData] = useState<serverpb.Address[]>([]);
     const navigation = useNavigation();
 
     useEffect(() => {
-        setData([
-            {id: 'newAddress'},
-            ...myAddressesDummy,
-        ]);
+
+        getUserIdLocal().then((userId: string) => {
+            const reqParam = new serverpb.GetUserAddressRequest();
+            reqParam.setUserid(userId);
+
+            grpcClient.getUserAddress(reqParam, null, (err: Error, resp: serverpb.GetUserAddressResponse) => {
+                if (err) {
+                    console.error(err);
+                    return ;
+                }
+
+                const addNewAddress = new serverpb.Address();
+                addNewAddress.setId('newAddress');
+
+                setData([
+                    addNewAddress,
+                    ...resp.getAddressList()
+                ]);
+            })
+        });
+
     }, []);
 
     const addNewAddressHandler = () => {
@@ -38,19 +57,19 @@ const AddressSelector = (props: AddressSelectorProps) => {
         <SelectDropdown
             data={data}
             defaultButtonText='Select delivery address'
-            onSelect={(item) => {
-                props.setAddressId(item.id);
+            onSelect={(item: serverpb.Address) => {
+                props.setAddressId(item.getId());
             }}
-            buttonTextAfterSelection={(selectedItem) => {
-                if(selectedItem.savedAs === 'Other') {
-                    return selectedItem.otherName;
+            buttonTextAfterSelection={(selectedItem: serverpb.Address) => {
+                if(selectedItem.getSavedas() === 'Other') {
+                    return selectedItem.getOthername();
                 }
 
-                return selectedItem.savedAs;
+                return selectedItem.getSavedas();
             }}
-            rowTextForSelection={(item) => {
-                if(item.id !== "newAddress")
-                    return `${item.savedAs} - ${item.houseAddress}`;
+            rowTextForSelection={(item: serverpb.Address) => {
+                if(item.getId() !== "newAddress")
+                    return `${item.getSavedas()} - ${item.getHouseaddress()}`;
 
                 return "newAddress";
             }}

@@ -2,15 +2,7 @@ import { AntDesign } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react'
 import { LayoutAnimation, Platform, StyleSheet, Text, TouchableOpacity, UIManager, View } from 'react-native'
 import SingleMenuItem from '../../components/SingleMenuItem';
-
-type ItemProp = {
-    name: string;
-    price: number;
-    id: string;
-    category: string;
-    bestSeller: boolean;
-    weight: number;
-}
+import serverpb from "../../proto/server_pb";
 
 if (Platform.OS === 'android') {
     if (UIManager.setLayoutAnimationEnabledExperimental) {
@@ -18,7 +10,17 @@ if (Platform.OS === 'android') {
     }
 }
 
-const Categories = (props: any) => {
+type CategoryProps = {
+    info: {
+        title: string;
+        data: Array<serverpb.MenuItem>;
+    };
+    shopId: string;
+    cart: any[];
+    updateCart: (itemId: string, newCount: number) => void;
+}
+
+const Categories = (props: CategoryProps) => {
 
     const [open, setOpen] = useState<boolean>(false);
 
@@ -37,16 +39,16 @@ const Categories = (props: any) => {
         return(
             <View style={{width: '100%'}}>
                 {
-                    props.info.data.map((data: ItemProp, idx: number) => {
+                    props.info.data.map((data: serverpb.MenuItem, idx: number) => {
                         return (
                             <SingleMenuItem 
                                 key={idx}
-                                bestSeller={data.bestSeller}
-                                category={data.category}
-                                id={data.id}
-                                name={data.name}
-                                price={data.price}
-                                weight={data.weight}
+                                bestSeller={data.getBestseller()}
+                                category={data.getCategory()}
+                                id={data.getId()}
+                                name={data.getName()}
+                                price={data.getPrice()}
+                                weight={data.getWeight()}
                                 shopId={props.shopId}
                                 cart={props.cart}
                                 updateCart={props.updateCart}

@@ -8,8 +8,8 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 type SingleShopProps = {
     id: string;
     name: string;
-    type?: Array<string>;
-    locality?: string;
+    typesList: Array<string>;
+    locality: string;
 }
 
 const SingleShop = (props: SingleShopProps) => {
@@ -23,6 +23,9 @@ const SingleShop = (props: SingleShopProps) => {
                 params: {
                     shopId: props.id,
                     name: props.name,
+                    locality: props.locality,
+                    typesList: props.typesList,
+                    menu: [],
                 }
             })
         )
@@ -49,12 +52,23 @@ const SingleShop = (props: SingleShopProps) => {
                     {props.name}
                 </Text>
 
-                <Text style={styles.shopType}>
-                    Fast food, american, dessert
-                </Text>
+                <View style={{display: 'flex', flexDirection: 'row'}}>
+                    {
+                        props.typesList.map((_type: string, idx: number) => {
+                            return (
+                                <Text key={idx} style={styles.shopType}>
+                                    { _type }
+                                    {
+                                        ( idx !== props.typesList.length - 1 ) && ", "
+                                    }
+                                </Text>
+                            )
+                        })
+                    }
+                </View>
 
                 <Text style={styles.shopLocation}>
-                    Jai Maa Nagar
+                    { props.locality }
                 </Text>
             </View>
         )

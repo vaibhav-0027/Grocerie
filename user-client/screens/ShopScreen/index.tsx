@@ -1,37 +1,34 @@
 import React, { useEffect, useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
-import { shopInfo } from '../../utils/dummyData';
 import { clearCartDataLocal, getCartDataLocal, setCartDataLocal } from '../../utils/localStorage/cartData';
 import { getCartShopIdLocal, setCartShopIdLocal } from '../../utils/localStorage/cartShopId';
 import Categories from './Categories';
 import ShopInfo from '../../components/ShopInfo';
 import ShowTotal from '../../components/ShowTotal';
-
-type ItemProp = {
-    name: string;
-    price: number;
-    id: string;
-    category: string;
-    bestSeller: boolean;
-    weight: number;
-}
+import grpcClient from '../../utils/grpcClient';
+import serverpb from "../../proto/server_pb";
 
 type InfoProps = {
     name: string;
-    id: string;
+    shopId: string;
     locality: string;
-    type: Array<string>;
-    menu: Array<ItemProp>;
+    typesList: Array<string>;
+    menu: Array<serverpb.MenuItem>;
+}
+
+type SingleCategoryProp = {
+    title: string;
+    data: Array<serverpb.MenuItem>;
 }
 
 const ShopScreen = (props: any) => {
 
-    const [shopId] = useState(props.route.params.shopId);
-    const [info, setInfo] = useState<InfoProps | null>(null);
-    const [categories, setCategories] = useState<any[]>();
+    const [shopInfo, setShopInfo] = useState<InfoProps>(props.route.params);
+
+    const [categories, setCategories] = useState<SingleCategoryProp[]>();
     const [cart, setCart] = useState<any>({});
     const [firstLoad, setFirstLoad] = useState(true);
-    const [total, setTotal] = useState(10);
+    const [total, setTotal] = useState(0);
     const [menu, setMenu] = useState<any>();
 
     const updateCart = (itemId: string, newCount: number) => {
@@ -43,15 +40,27 @@ const ShopScreen = (props: any) => {
         });
     }
 
-    // Setting shopInfo on page load to send to <ShopInfo /> component
     useEffect(() => {
-        setInfo(shopInfo);
+        const reqParam = new serverpb.GetShopMenuRequest();
+        reqParam.setShopid(shopInfo.shopId);
+
+        grpcClient.getShopMenu(reqParam, null, (err: Error, resp: serverpb.GetShopMenuResponse) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+
+            setShopInfo({
+                ...shopInfo,
+                menu: resp.getMenuList(),
+            });
+        });
     }, []);
 
     // check if already stored info is same as this shop info
     useEffect(() => {
 
-        if(!info)
+        if(!shopInfo)
             return;
 
         const method = async () => {
@@ -61,18 +70,18 @@ const ShopScreen = (props: any) => {
             let newData: any = {bestseller: []};
             let tempMenu: any = {};
 
-            info?.menu.forEach((data) => {
+            shopInfo.menu.forEach((data: serverpb.MenuItem) => {
                 tempCart = {
                     ...tempCart,
-                    [data.id]: 0,
+                    [data.getId()]: 0,
                 }
 
                 tempMenu = {
                     ...tempMenu,
-                    [data.id]: data,
+                    [data.getId()]: data,
                 }
 
-                if(data.bestSeller) {
+                if(data.getBestseller()) {
                     newData = {
                         ...newData,
                         bestseller: [
@@ -82,23 +91,23 @@ const ShopScreen = (props: any) => {
                     }
                 }
 
-                if(!newData[data.category]) {
+                if(!newData[data.getCategory()]) {
                     newData = {
                         ...newData,
-                        [data.category]: [data],
+                        [data.getCategory()]: [data],
                     };
                 } else {
                     newData = {
                         ...newData,
-                        [data.category]: [
-                            ...newData[data.category],
+                        [data.getCategory()]: [
+                            ...newData[data.getCategory()],
                             data
                         ]
                     };
                 }
             })
 
-            let arr: any[] = [];
+            let arr: SingleCategoryProp[] = [];
 
             arr.push({title: "BestSellers", data: newData['bestseller']});
             newData['bestseller'] = null;
@@ -118,13 +127,9 @@ const ShopScreen = (props: any) => {
             setCategories(arr);
             setMenu(tempMenu);
 
-
-            if(cartShopId === shopId) {
+            if(cartShopId === shopInfo.shopId) {
                 let cartDataString = await getCartDataLocal();
                 let cartData = JSON.parse(cartDataString);
-
-                // console.log(tempCart);
-                // console.log(cartData);
 
                 setCart({
                     ...tempCart,
@@ -137,32 +142,29 @@ const ShopScreen = (props: any) => {
         }
 
         method();
-    }, [info]);
+    }, [shopInfo]);
 
     // updating local cartData on any change in selected items
     useEffect(() => {
         if(firstLoad) {
             return setFirstLoad(false);
         }
-        // console.log("updating cart");
 
         const method = async () => {
             const cartShopId = await getCartShopIdLocal();
-            // console.log(cartShopId);
 
-            if(cartShopId !== shopId) {
+            if(cartShopId !== shopInfo.shopId) {
                 // TODO: ask if clear cart?
-                // console.log("clearing cart");
                 await clearCartDataLocal();
-                await setCartShopIdLocal(shopId);
+                await setCartShopIdLocal(shopInfo.shopId);
             } 
 
             await setCartDataLocal(JSON.stringify(cart));
 
             let cartTotal = 0;
             Object.keys(cart).forEach((key: string) => {
-                if(menu) {
-                    cartTotal = cartTotal + cart[key] * menu[key].price;
+                if(menu[key]) {
+                    cartTotal = cartTotal + cart[key] * menu[key].getPrice();
                 }
             })
 
@@ -177,18 +179,18 @@ const ShopScreen = (props: any) => {
         <View style={styles.container}>
             <ScrollView contentContainerStyle={{width: '100%'}}>
                 <ShopInfo
-                    name={info?.name || 'Temp'}
-                    locality={info?.locality || 'somewhere'}
-                    type={info?.type || ['chinese', 'mexican']}
+                    name={shopInfo.name}
+                    locality={shopInfo.locality}
+                    type={shopInfo.typesList}
                 />
 
                 {
-                    categories?.map((data, idx: number) => {
+                    categories?.map((data: SingleCategoryProp, idx: number) => {
                         return (
                             <Categories
                                 key={idx}
                                 info={data}
-                                shopId={shopId}
+                                shopId={shopInfo.shopId}
                                 cart={cart}
                                 updateCart={updateCart}
                             />

@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { ScrollView, StyleSheet, Text, View } from 'react-native'
 import ShopInfo from '../../components/ShopInfo';
 import SingleMenuItem from '../../components/SingleMenuItem';
-import { shopInfo } from '../../utils/dummyData';
 import { getCartDataLocal, setCartDataLocal } from '../../utils/localStorage/cartData';
 import { getCartShopIdLocal } from '../../utils/localStorage/cartShopId';
 import EmptyBasket from './EmptyBasket';
 import ShowTotal from '../../components/ShowTotal';
+import serverpb from "../../proto/server_pb";
+import grpcClient from '../../utils/grpcClient';
 
 type ItemProp = {
     name: string;
@@ -19,17 +20,23 @@ type ItemProp = {
 
 type InfoProps = {
     name: string;
-    id: string;
+    shopId: string;
     locality: string;
-    type: Array<string>;
-    menu: Array<ItemProp>;
+    typesList: Array<string>;
+    menu: Array<serverpb.MenuItem>;
 }
 
 const BasketScreen = () => {
 
     const [shopId, setShopId] = useState<string>('');
     const [cartData, setCartData] = useState<any>({});
-    const [info, setInfo] = useState<InfoProps>();
+    const [shopInfo, setShopInfo] = useState<InfoProps>({
+        name: '',
+        locality: '',
+        menu: [],
+        shopId: '',
+        typesList: [],
+    });
     const [showEmpty, setShowEmpty] = useState(true);
     const [menu, setMenu] = useState<any>();
     const [firstLoad, setFirstLoad] = useState(true);
@@ -65,21 +72,57 @@ const BasketScreen = () => {
             return ;
         }
 
-        // TODO: fetch shop info from server -> shopInfo
-        setInfo(shopInfo);
+        // TODO: replace this with getSingleShopInfo
+        const reqParam = new serverpb.GetShopListRequest();
+
+        grpcClient.getShopList(reqParam, null, (err: Error, resp: serverpb.GetShopListResponse) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+
+            resp.getShopsList().map((_currentShop: serverpb.Shop) => {
+                if(_currentShop.getId() === shopId) {
+                    setShopInfo({
+                        name: _currentShop.getName(),
+                        locality: _currentShop.getLocality(),
+                        shopId,
+                        typesList: _currentShop.getTypesList(),
+                        menu: [],
+                    });
+                }
+            });
+        });
+
+        const reqParam2 = new serverpb.GetShopMenuRequest();
+        reqParam2.setShopid(shopId);
+
+        grpcClient.getShopMenu(reqParam2, null, (err: Error, resp: serverpb.GetShopMenuResponse) => {
+            if (err) {
+                console.error(err);
+                return;
+            }
+
+            setShopInfo((prev: any) => {
+                return {
+                    ...prev,
+                    menu: resp.getMenuList(),
+                }
+            })
+        })
     }, [shopId]);
 
     useEffect(() => {
-        if(!info) {
+        if(!shopInfo) {
             return ;
         }
 
         let arr: any = {};
         let totalBasket = 0;
 
-        info.menu.map((item) => {
+        shopInfo.menu.map((item: serverpb.MenuItem) => {
             let obj = {
-                [item.id]: item,
+                [item.getId()]: item,
             }
 
             arr = {
@@ -87,12 +130,12 @@ const BasketScreen = () => {
                 ...obj,
             }
 
-            totalBasket = totalBasket + item.price * cartData[item.id]
+            totalBasket = totalBasket + item.getPrice() * cartData[item.getId()]
         });
 
         setMenu(arr);
         setTotal(totalBasket);
-    }, [info]);
+    }, [shopInfo]);
 
     // check if the basket is empty on every update of cartData
     useEffect(() => {
@@ -106,8 +149,8 @@ const BasketScreen = () => {
             if(cartData[key] !== 0) {
                 showEmptyTemp = false;
 
-                if(menu) {   
-                    totalBasket = totalBasket + cartData[key] * menu[key].price;
+                if(menu[key]) {   
+                    totalBasket = totalBasket + cartData[key] * menu[key].getPrice();
                 }
             }
         });
@@ -138,18 +181,21 @@ const BasketScreen = () => {
                             return null;
                         }
                         
-                        const temp: ItemProp = menu[key];
+                        const temp: serverpb.MenuItem = menu[key];
+                        if(!temp) {
+                            return null;
+                        }
                         
                         return (
                             <SingleMenuItem 
-                                bestSeller={temp.bestSeller}
-                                category={temp.category}
-                                id={temp.id}
-                                name={temp.name}
-                                price={temp.price}
-                                weight={temp.weight}
+                                bestSeller={temp.getBestseller()}
+                                category={temp.getCategory()}
+                                id={temp.getId()}
+                                name={temp.getName()}
+                                price={temp.getPrice()}
+                                weight={temp.getWeight()}
                                 shopId={shopId}
-                                key={temp.id}
+                                key={temp.getId()}
                                 cart={cartData}
                                 updateCart={updateCartData}
                             />
@@ -168,9 +214,9 @@ const BasketScreen = () => {
             <View style={styles.container}>
                 <ScrollView contentContainerStyle={styles.scrollViewContainer}>
                     <ShopInfo
-                        name={info?.name || 'Temp'}
-                        locality={info?.locality || 'somewhere'}
-                        type={info?.type || ['chinese', 'mexican']}
+                        name={shopInfo.name}
+                        locality={shopInfo.locality}
+                        type={shopInfo.typesList}
                         clickable
                         shopId={shopId}
                     />

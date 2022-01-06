@@ -18,7 +18,7 @@ const CheckoutScreen = (props: any) => {
     useEffect(() => {
         let sum = 0;
         Object.keys(cartData).forEach((key) => {
-            sum = sum + cartData[key] * menu[key].price;
+            sum = sum + cartData[key] * menu[key].getPrice();
         });
         setTotal(sum);
         setRenderTotal(true);
@@ -42,10 +42,10 @@ const CheckoutScreen = (props: any) => {
                         return (
                             <SingleCheckoutItem
                                 key={idx}
-                                name={menu[key].name}
-                                price={menu[key].price}
+                                name={menu[key].getName()}
+                                price={menu[key].getPrice()}
                                 qty={cartData[key]}
-                                weight={menu[key].weight}
+                                weight={menu[key].getWeight()}
                             />
                         )
                     })
