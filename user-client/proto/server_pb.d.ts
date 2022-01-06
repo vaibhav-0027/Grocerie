@@ -122,12 +122,6 @@ export class Order extends jspb.Message {
   getTotalprice(): number;
   setTotalprice(value: number): Order;
 
-  getOrderdate(): string;
-  setOrderdate(value: string): Order;
-
-  getOrdertime(): string;
-  setOrdertime(value: string): Order;
-
   getShopid(): string;
   setShopid(value: string): Order;
 
@@ -143,6 +137,18 @@ export class Order extends jspb.Message {
   getUserid(): string;
   setUserid(value: string): Order;
 
+  getStatus(): string;
+  setStatus(value: string): Order;
+
+  getTotalweight(): number;
+  setTotalweight(value: number): Order;
+
+  getAddressid(): string;
+  setAddressid(value: string): Order;
+
+  getId(): string;
+  setId(value: string): Order;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Order.AsObject;
   static toObject(includeInstance: boolean, msg: Order): Order.AsObject;
@@ -154,13 +160,15 @@ export class Order extends jspb.Message {
 export namespace Order {
   export type AsObject = {
     totalprice: number,
-    orderdate: string,
-    ordertime: string,
     shopid: string,
     deliveryrating: number,
     foodrating: number,
     orderdetails: string,
     userid: string,
+    status: string,
+    totalweight: number,
+    addressid: string,
+    id: string,
   }
 }
 
@@ -519,6 +527,11 @@ export namespace GetShopMenuResponse {
 }
 
 export class CreateNewOrderRequest extends jspb.Message {
+  getOrder(): Order | undefined;
+  setOrder(value?: Order): CreateNewOrderRequest;
+  hasOrder(): boolean;
+  clearOrder(): CreateNewOrderRequest;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateNewOrderRequest.AsObject;
   static toObject(includeInstance: boolean, msg: CreateNewOrderRequest): CreateNewOrderRequest.AsObject;
@@ -529,10 +542,16 @@ export class CreateNewOrderRequest extends jspb.Message {
 
 export namespace CreateNewOrderRequest {
   export type AsObject = {
+    order?: Order.AsObject,
   }
 }
 
 export class CreateNewOrderResponse extends jspb.Message {
+  getOrder(): Order | undefined;
+  setOrder(value?: Order): CreateNewOrderResponse;
+  hasOrder(): boolean;
+  clearOrder(): CreateNewOrderResponse;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CreateNewOrderResponse.AsObject;
   static toObject(includeInstance: boolean, msg: CreateNewOrderResponse): CreateNewOrderResponse.AsObject;
@@ -543,6 +562,7 @@ export class CreateNewOrderResponse extends jspb.Message {
 
 export namespace CreateNewOrderResponse {
   export type AsObject = {
+    order?: Order.AsObject,
   }
 }
 
@@ -581,6 +601,46 @@ export class GetPreviousOrdersResponse extends jspb.Message {
 export namespace GetPreviousOrdersResponse {
   export type AsObject = {
     ordersList: Array<Order.AsObject>,
+  }
+}
+
+export class UpdateOrderRequest extends jspb.Message {
+  getOrder(): Order | undefined;
+  setOrder(value?: Order): UpdateOrderRequest;
+  hasOrder(): boolean;
+  clearOrder(): UpdateOrderRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UpdateOrderRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: UpdateOrderRequest): UpdateOrderRequest.AsObject;
+  static serializeBinaryToWriter(message: UpdateOrderRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UpdateOrderRequest;
+  static deserializeBinaryFromReader(message: UpdateOrderRequest, reader: jspb.BinaryReader): UpdateOrderRequest;
+}
+
+export namespace UpdateOrderRequest {
+  export type AsObject = {
+    order?: Order.AsObject,
+  }
+}
+
+export class UpdateOrderResponse extends jspb.Message {
+  getOrder(): Order | undefined;
+  setOrder(value?: Order): UpdateOrderResponse;
+  hasOrder(): boolean;
+  clearOrder(): UpdateOrderResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): UpdateOrderResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: UpdateOrderResponse): UpdateOrderResponse.AsObject;
+  static serializeBinaryToWriter(message: UpdateOrderResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): UpdateOrderResponse;
+  static deserializeBinaryFromReader(message: UpdateOrderResponse, reader: jspb.BinaryReader): UpdateOrderResponse;
+}
+
+export namespace UpdateOrderResponse {
+  export type AsObject = {
+    order?: Order.AsObject,
   }
 }
 

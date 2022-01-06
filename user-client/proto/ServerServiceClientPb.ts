@@ -508,5 +508,48 @@ export class serverpbClient {
     this.methodInfoGetPreviousOrders);
   }
 
+  methodInfoUpdateOrder = new grpcWeb.MethodDescriptor(
+    '/serverpb.serverpb/UpdateOrder',
+    grpcWeb.MethodType.UNARY,
+    server_pb.UpdateOrderRequest,
+    server_pb.UpdateOrderResponse,
+    (request: server_pb.UpdateOrderRequest) => {
+      return request.serializeBinary();
+    },
+    server_pb.UpdateOrderResponse.deserializeBinary
+  );
+
+  updateOrder(
+    request: server_pb.UpdateOrderRequest,
+    metadata: grpcWeb.Metadata | null): Promise<server_pb.UpdateOrderResponse>;
+
+  updateOrder(
+    request: server_pb.UpdateOrderRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: server_pb.UpdateOrderResponse) => void): grpcWeb.ClientReadableStream<server_pb.UpdateOrderResponse>;
+
+  updateOrder(
+    request: server_pb.UpdateOrderRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: server_pb.UpdateOrderResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/serverpb.serverpb/UpdateOrder',
+        request,
+        metadata || {},
+        this.methodInfoUpdateOrder,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/serverpb.serverpb/UpdateOrder',
+    request,
+    metadata || {},
+    this.methodInfoUpdateOrder);
+  }
+
 }
 

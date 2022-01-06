@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	uuid "github.com/satori/go.uuid"
 	"github.com/vaibhav-0027/Grocerie/models"
 	serverpb "github.com/vaibhav-0027/Grocerie/proto"
 	"google.golang.org/grpc/codes"
@@ -50,7 +51,7 @@ func (h *addressHandler) GetUserAddress(ctx context.Context, req *serverpb.GetUs
 			HouseAddress: _address.HouseAddress,
 			Area:         _address.Area,
 			Landmark:     _address.Landmark,
-			UserId:       _address.UserID,
+			UserId:       _address.UserID.String(),
 		}
 
 		respList = append(respList, temp)
@@ -72,7 +73,7 @@ func (h *addressHandler) AddNewAddress(ctx context.Context, req *serverpb.AddNew
 		HouseAddress: params.GetHouseAddress(),
 		Area:         params.GetArea(),
 		Landmark:     params.GetLandmark(),
-		UserID:       params.GetUserId(),
+		UserID:       uuid.FromStringOrNil(params.GetUserId()),
 	}
 
 	resp := repo.Create(&newAddress)
@@ -137,7 +138,7 @@ func (h *addressHandler) UpdateAddress(ctx context.Context, req *serverpb.Update
 			HouseAddress: updatedAddress.HouseAddress,
 			Area:         updatedAddress.Area,
 			Landmark:     updatedAddress.Landmark,
-			UserId:       updatedAddress.UserID,
+			UserId:       updatedAddress.UserID.String(),
 		},
 	}, nil
 }

@@ -32,13 +32,15 @@ message MenuItem {
 
 message Order {
     int32 totalPrice = 1;
-    string orderDate = 2;
-    string orderTime = 3;
-    string shopId = 4;
-    int32 deliveryRating = 5;
-    int32 foodRating = 6;
-    string orderDetails = 7;
-    string userId = 8;
+    string shopId = 2;
+    int32 deliveryRating = 3;
+    int32 foodRating = 4;
+    string orderDetails = 5;
+    string userId = 6;
+    string status = 7;
+    int32 totalWeight = 8;
+    string addressId = 9;
+    string id = 10;
 }
 
 message RegisterUserRequest {
@@ -119,11 +121,11 @@ message GetShopMenuResponse {
 }
 
 message CreateNewOrderRequest {
-
+    Order order = 1;
 }
 
 message CreateNewOrderResponse {
-
+    Order order = 1;
 }
 
 message GetPreviousOrdersRequest {
@@ -132,6 +134,14 @@ message GetPreviousOrdersRequest {
 
 message GetPreviousOrdersResponse {
     repeated Order orders = 1;
+}
+
+message UpdateOrderRequest {
+    Order order = 1;
+}
+
+message UpdateOrderResponse {
+    Order order = 1;
 }
 
 service serverpb {
@@ -153,4 +163,5 @@ service serverpb {
     // Order related requests
     rpc CreateNewOrder(CreateNewOrderRequest) returns (CreateNewOrderResponse) {};
     rpc GetPreviousOrders(GetPreviousOrdersRequest) returns (GetPreviousOrdersResponse) {};
+    rpc UpdateOrder(UpdateOrderRequest) returns (UpdateOrderResponse) {};
 }

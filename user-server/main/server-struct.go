@@ -50,3 +50,6 @@ func (*server) CreateNewOrder(ctx context.Context, req *serverpb.CreateNewOrderR
 func (*server) GetPreviousOrders(ctx context.Context, req *serverpb.GetPreviousOrdersRequest) (*serverpb.GetPreviousOrdersResponse, error) {
 	return orderHandler.GetPreviousOrders(ctx, req)
 }
+func (*server) UpdateOrder(ctx context.Context, req *serverpb.UpdateOrderRequest) (*serverpb.UpdateOrderResponse, error) {
+	return orderHandler.UpdateOrder(ctx, req)
+}

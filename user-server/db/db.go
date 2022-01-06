@@ -44,6 +44,7 @@ func DB() *gorm.DB {
 	db.AutoMigrate(&models.Address{})
 	db.AutoMigrate(&models.Shop{})
 	db.AutoMigrate(&models.Menu{})
+	db.AutoMigrate(&models.Order{})
 
 	return db
 }

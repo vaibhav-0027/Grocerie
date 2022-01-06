@@ -1,5 +1,7 @@
 package models
 
+import uuid "github.com/satori/go.uuid"
+
 type Address struct {
 	Base
 
@@ -8,5 +10,5 @@ type Address struct {
 	HouseAddress string
 	Area         string
 	Landmark     string
-	UserID       string
+	UserID       uuid.UUID
 }
