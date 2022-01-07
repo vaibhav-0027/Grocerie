@@ -43,6 +43,12 @@ message Order {
     string id = 10;
 }
 
+message PreviousOrderDetails {
+    Order orderInfo = 1;
+    Shop shopInfo = 2;
+    repeated MenuItem itemsInfo = 3;
+}
+
 message RegisterUserRequest {
     string mobile = 1;
     string name = 2;
@@ -112,6 +118,14 @@ message GetShopListResponse {
     repeated Shop shops = 1;
 }
 
+message GetShopInfoRequest {
+    string shopId = 1;
+}
+
+message GetShopInfoResponse {
+    Shop shop = 1;
+}
+
 message GetShopMenuRequest {
     string shopId = 1;
 }
@@ -133,7 +147,7 @@ message GetPreviousOrdersRequest {
 }
 
 message GetPreviousOrdersResponse {
-    repeated Order orders = 1;
+    repeated PreviousOrderDetails orders = 1;
 }
 
 message UpdateOrderRequest {
@@ -158,6 +172,7 @@ service serverpb {
 
     // Shop related requests
     rpc GetShopList(GetShopListRequest) returns (GetShopListResponse) {};
+    rpc GetShopInfo(GetShopInfoRequest) returns (GetShopInfoResponse) {};
     rpc GetShopMenu(GetShopMenuRequest) returns (GetShopMenuResponse) {};
 
     // Order related requests

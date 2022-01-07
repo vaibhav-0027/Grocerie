@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 
 	serverpb "github.com/vaibhav-0027/Grocerie/proto"
 )
@@ -28,7 +27,6 @@ func (*server) AddNewAddress(ctx context.Context, req *serverpb.AddNewAddressReq
 	return addressHandler.AddNewAddress(ctx, req)
 }
 func (*server) UpdateAddress(ctx context.Context, req *serverpb.UpdateAddressRequest) (*serverpb.UpdateAddressResponse, error) {
-	fmt.Println("server-struct update address")
 	return addressHandler.UpdateAddress(ctx, req)
 }
 func (*server) DeleteAddress(ctx context.Context, req *serverpb.DeleteAddressRequest) (*serverpb.DeleteAddressResponse, error) {
@@ -38,6 +36,9 @@ func (*server) DeleteAddress(ctx context.Context, req *serverpb.DeleteAddressReq
 // Shop related requests
 func (*server) GetShopList(ctx context.Context, req *serverpb.GetShopListRequest) (*serverpb.GetShopListResponse, error) {
 	return shopHandler.GetShopList(ctx, req)
+}
+func (*server) GetShopInfo(ctx context.Context, req *serverpb.GetShopInfoRequest) (*serverpb.GetShopInfoResponse, error) {
+	return shopHandler.GetShopInfo(ctx, req)
 }
 func (*server) GetShopMenu(ctx context.Context, req *serverpb.GetShopMenuRequest) (*serverpb.GetShopMenuResponse, error) {
 	return shopHandler.GetShopMenu(ctx, req)

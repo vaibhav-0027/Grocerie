@@ -13,6 +13,7 @@ import (
 
 type ShopHandler interface {
 	GetShopList(context.Context, *serverpb.GetShopListRequest) (*serverpb.GetShopListResponse, error)
+	GetShopInfo(context.Context, *serverpb.GetShopInfoRequest) (*serverpb.GetShopInfoResponse, error)
 	GetShopMenu(context.Context, *serverpb.GetShopMenuRequest) (*serverpb.GetShopMenuResponse, error)
 }
 
@@ -63,6 +64,30 @@ func (h *shopHandler) GetShopList(ctx context.Context, req *serverpb.GetShopList
 
 	return &serverpb.GetShopListResponse{
 		Shops: respList,
+	}, nil
+}
+
+func (h *shopHandler) GetShopInfo(ctx context.Context, req *serverpb.GetShopInfoRequest) (*serverpb.GetShopInfoResponse, error) {
+	fmt.Printf("GetShopInfo method invoked by: %+v\n", req)
+
+	shopId := req.GetShopId()
+	shopInfo := &models.Shop{}
+
+	resp := repo.Where("shop_id = ?", shopId).Find(&shopInfo)
+	if resp.Error != nil {
+		return nil, status.Errorf(
+			codes.Internal,
+			"Something went wrong! Please try again",
+		)
+	}
+
+	return &serverpb.GetShopInfoResponse{
+		Shop: &serverpb.Shop{
+			Id:       shopInfo.ID.String(),
+			Name:     shopInfo.Name,
+			Locality: shopInfo.Locality,
+			Types:    strings.Split(shopInfo.Types, ","),
+		},
 	}, nil
 }
 

@@ -1,24 +1,34 @@
-import { FontAwesome } from '@expo/vector-icons';
 import React, { useEffect, useState } from 'react'
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
-import { previousOrdersDummy } from '../../utils/dummyData';
+import { ScrollView, StyleSheet } from 'react-native'
 import SinglePreviousOrder from './SinglePreviousOrder';
+
+import serverpb from "../../proto/server_pb";
+import grpcClient from '../../utils/grpcClient';
 
 const PreviousOrders = (props: any) => {
 
     const userId = props.route.params.info?.uid;
-    const [orders, setOrders] = useState<any>([]);
+    const [orders, setOrders] = useState<serverpb.PreviousOrderDetails[]>([]);
 
     useEffect(() => {
-        //TODO fetch from server instead
+        const reqParam = new serverpb.GetPreviousOrdersRequest();
+        reqParam.setUserid(userId);
 
-        setOrders(previousOrdersDummy);
+        grpcClient.getPreviousOrders(reqParam, null, (err: Error, resp: serverpb.GetPreviousOrdersResponse) => {
+            if (err) {
+                console.error(err);
+
+                return ;
+            }
+
+            setOrders(resp.getOrdersList());
+        })
     }, []);
 
     return (
         <ScrollView contentContainerStyle={styles.scrollViewContainer}>
             {
-                orders?.map((_order: any, idx: number) => {
+                orders.map((_order: serverpb.PreviousOrderDetails, idx: number) => {
                     return (
                         <SinglePreviousOrder
                             info={_order}

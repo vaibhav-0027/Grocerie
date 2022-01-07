@@ -4,23 +4,44 @@ import * as React from 'react'
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import AddressSelector from './AddressSelector';
 import SingleCheckoutItem from './SingleCheckoutItem';
+import { getUserIdLocal } from '../../utils/localStorage/userId';
+
+import serverpb from "../../proto/server_pb";
+import grpcClient from '../../utils/grpcClient';
+import { clearCartDataLocal } from '../../utils/localStorage/cartData';
+import { CommonActions, useNavigation } from '@react-navigation/native';
 
 const CheckoutScreen = (props: any) => {
+
+    const navigation = useNavigation();
 
     const cartData = props.route.params.cartData;
     const shopId = props.route.params.shopId;
     const menu = props.route.params.menu;
 
-    const [total, setTotal] = useState(0);
+    const [totalPrice, setTotalPrice] = useState(0);
+    const [totalWeight, setTotalWeight] = useState(0);
+    const [userId, setUserId] = useState('');
     const [renderTotal, setRenderTotal] = useState(false);
     const [addressId, setAddressId] = useState<string>('');
 
     useEffect(() => {
+        getUserIdLocal().then((val: string) => {
+            setUserId(val);
+        });
+    }, []);
+
+    useEffect(() => {
         let sum = 0;
+        let weight = 0;
+
         Object.keys(cartData).forEach((key) => {
             sum = sum + cartData[key] * menu[key].getPrice();
+            weight = weight + cartData[key] * menu[key].getWeight();
         });
-        setTotal(sum);
+        
+        setTotalPrice(sum);
+        setTotalWeight(weight);
         setRenderTotal(true);
     }, [cartData]);
 
@@ -28,6 +49,32 @@ const CheckoutScreen = (props: any) => {
         if(!addressId) {
             return alert("Select delivery address!");
         }
+
+        const newOrder = new serverpb.Order();
+        newOrder.setAddressid(addressId);
+        newOrder.setShopid(shopId);
+        newOrder.setTotalprice(totalPrice);
+        newOrder.setTotalweight(totalWeight);
+        newOrder.setUserid(userId);
+        newOrder.setOrderdetails(JSON.stringify(cartData));
+
+        const reqParam = new serverpb.CreateNewOrderRequest();
+        reqParam.setOrder(newOrder);
+
+        grpcClient.createNewOrder(reqParam, null, (err: Error, resp: serverpb.CreateNewOrderResponse) => {
+            if (err) {
+                console.error("Something went wrong while placing new order", err);
+
+                return alert(err);
+            }
+
+            alert("Order placed successfully!! \nOrder will be delivered shortly!! \nYou can check the status in My Orders");
+            clearCartDataLocal();
+
+            navigation.dispatch(CommonActions.navigate({
+                name: 'Home',
+            }));
+        });
     }
 
     const _renderOrderList = () => {
@@ -63,7 +110,7 @@ const CheckoutScreen = (props: any) => {
                     </Text>
                     <Text style={styles.itemTotalText}>
                         <FontAwesome name="inr" size={16} color="black" /> 
-                        { total }
+                        { totalPrice }
                     </Text>
                 </View>
 
@@ -88,7 +135,7 @@ const CheckoutScreen = (props: any) => {
                 </Text>
                 <Text style={styles.totalBillText}>
                     <FontAwesome name="inr" size={24} color="black" />
-                    { total + 20 }
+                    { totalPrice + 20 }
                 </Text>
             </View>
         )

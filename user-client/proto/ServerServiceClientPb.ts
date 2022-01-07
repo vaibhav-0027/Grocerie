@@ -379,6 +379,49 @@ export class serverpbClient {
     this.methodInfoGetShopList);
   }
 
+  methodInfoGetShopInfo = new grpcWeb.MethodDescriptor(
+    '/serverpb.serverpb/GetShopInfo',
+    grpcWeb.MethodType.UNARY,
+    server_pb.GetShopInfoRequest,
+    server_pb.GetShopInfoResponse,
+    (request: server_pb.GetShopInfoRequest) => {
+      return request.serializeBinary();
+    },
+    server_pb.GetShopInfoResponse.deserializeBinary
+  );
+
+  getShopInfo(
+    request: server_pb.GetShopInfoRequest,
+    metadata: grpcWeb.Metadata | null): Promise<server_pb.GetShopInfoResponse>;
+
+  getShopInfo(
+    request: server_pb.GetShopInfoRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback: (err: grpcWeb.RpcError,
+               response: server_pb.GetShopInfoResponse) => void): grpcWeb.ClientReadableStream<server_pb.GetShopInfoResponse>;
+
+  getShopInfo(
+    request: server_pb.GetShopInfoRequest,
+    metadata: grpcWeb.Metadata | null,
+    callback?: (err: grpcWeb.RpcError,
+               response: server_pb.GetShopInfoResponse) => void) {
+    if (callback !== undefined) {
+      return this.client_.rpcCall(
+        this.hostname_ +
+          '/serverpb.serverpb/GetShopInfo',
+        request,
+        metadata || {},
+        this.methodInfoGetShopInfo,
+        callback);
+    }
+    return this.client_.unaryCall(
+    this.hostname_ +
+      '/serverpb.serverpb/GetShopInfo',
+    request,
+    metadata || {},
+    this.methodInfoGetShopInfo);
+  }
+
   methodInfoGetShopMenu = new grpcWeb.MethodDescriptor(
     '/serverpb.serverpb/GetShopMenu',
     grpcWeb.MethodType.UNARY,

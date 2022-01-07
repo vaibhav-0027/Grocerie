@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	uuid "github.com/satori/go.uuid"
 	"github.com/vaibhav-0027/Grocerie/models"
@@ -70,9 +71,9 @@ func (h *orderHandler) GetPreviousOrders(ctx context.Context, req *serverpb.GetP
 	fmt.Printf("GetPreviousOrders method was invoked by: %+v\n", req)
 
 	userId := req.GetUserId()
-	list := []*models.Order{}
+	ordersList := []*models.Order{}
 
-	resp := repo.Where("user_id = ?", userId).Find(&list)
+	resp := repo.Where("user_id = ?", userId).Find(&ordersList)
 	if resp.Error != nil {
 		fmt.Printf("Something went wrong: %+v\n", resp.Error)
 
@@ -82,10 +83,11 @@ func (h *orderHandler) GetPreviousOrders(ctx context.Context, req *serverpb.GetP
 		)
 	}
 
-	respList := []*serverpb.Order{}
+	respList := []*serverpb.PreviousOrderDetails{}
 
-	for _, _order := range list {
-		temp := &serverpb.Order{
+	// TODO: optimize this method
+	for _, _order := range ordersList {
+		tempOrder := &serverpb.Order{
 			Id:             _order.ID.String(),
 			ShopId:         _order.ShopId.String(),
 			UserId:         _order.UserId.String(),
@@ -95,6 +97,16 @@ func (h *orderHandler) GetPreviousOrders(ctx context.Context, req *serverpb.GetP
 			FoodRating:     _order.FoodRating,
 			OrderDetails:   _order.Details,
 			Status:         _order.Status,
+		}
+
+		tempShop := getShopInfo(_order.ShopId)
+
+		tempItems := getOrderItems(_order.ShopId)
+
+		temp := &serverpb.PreviousOrderDetails{
+			OrderInfo: tempOrder,
+			ShopInfo:  tempShop,
+			ItemsInfo: tempItems,
 		}
 
 		respList = append(respList, temp)
@@ -148,4 +160,41 @@ func (h *orderHandler) UpdateOrder(ctx context.Context, req *serverpb.UpdateOrde
 			Status:         updatedOrder.Status,
 		},
 	}, nil
+}
+
+func getShopInfo(shopId uuid.UUID) *serverpb.Shop {
+	tempShopModel := &models.Shop{}
+	resp := repo.Where("id = ?", shopId).Find(&tempShopModel)
+	if resp.Error != nil {
+		return nil
+	}
+
+	return &serverpb.Shop{
+		Id:       tempShopModel.ID.String(),
+		Name:     tempShopModel.Name,
+		Locality: tempShopModel.Locality,
+		Types:    strings.Split(tempShopModel.Types, ","),
+	}
+}
+
+func getOrderItems(shopId uuid.UUID) []*serverpb.MenuItem {
+	tempItemsModel := []*models.Menu{}
+	resp := repo.Where("shop_id = ?", shopId).Find(&tempItemsModel)
+	if resp.Error != nil {
+		return []*serverpb.MenuItem{}
+	}
+
+	tempItems := []*serverpb.MenuItem{}
+
+	for _, _currentItem := range tempItemsModel {
+		temp := &serverpb.MenuItem{
+			Id:     _currentItem.ID.String(),
+			Name:   _currentItem.Name,
+			Weight: _currentItem.Weight,
+		}
+
+		tempItems = append(tempItems, temp)
+	}
+
+	return tempItems
 }

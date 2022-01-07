@@ -172,6 +172,38 @@ export namespace Order {
   }
 }
 
+export class PreviousOrderDetails extends jspb.Message {
+  getOrderinfo(): Order | undefined;
+  setOrderinfo(value?: Order): PreviousOrderDetails;
+  hasOrderinfo(): boolean;
+  clearOrderinfo(): PreviousOrderDetails;
+
+  getShopinfo(): Shop | undefined;
+  setShopinfo(value?: Shop): PreviousOrderDetails;
+  hasShopinfo(): boolean;
+  clearShopinfo(): PreviousOrderDetails;
+
+  getItemsinfoList(): Array<MenuItem>;
+  setItemsinfoList(value: Array<MenuItem>): PreviousOrderDetails;
+  clearItemsinfoList(): PreviousOrderDetails;
+  addItemsinfo(value?: MenuItem, index?: number): MenuItem;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PreviousOrderDetails.AsObject;
+  static toObject(includeInstance: boolean, msg: PreviousOrderDetails): PreviousOrderDetails.AsObject;
+  static serializeBinaryToWriter(message: PreviousOrderDetails, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PreviousOrderDetails;
+  static deserializeBinaryFromReader(message: PreviousOrderDetails, reader: jspb.BinaryReader): PreviousOrderDetails;
+}
+
+export namespace PreviousOrderDetails {
+  export type AsObject = {
+    orderinfo?: Order.AsObject,
+    shopinfo?: Shop.AsObject,
+    itemsinfoList: Array<MenuItem.AsObject>,
+  }
+}
+
 export class RegisterUserRequest extends jspb.Message {
   getMobile(): string;
   setMobile(value: string): RegisterUserRequest;
@@ -488,6 +520,44 @@ export namespace GetShopListResponse {
   }
 }
 
+export class GetShopInfoRequest extends jspb.Message {
+  getShopid(): string;
+  setShopid(value: string): GetShopInfoRequest;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetShopInfoRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: GetShopInfoRequest): GetShopInfoRequest.AsObject;
+  static serializeBinaryToWriter(message: GetShopInfoRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetShopInfoRequest;
+  static deserializeBinaryFromReader(message: GetShopInfoRequest, reader: jspb.BinaryReader): GetShopInfoRequest;
+}
+
+export namespace GetShopInfoRequest {
+  export type AsObject = {
+    shopid: string,
+  }
+}
+
+export class GetShopInfoResponse extends jspb.Message {
+  getShop(): Shop | undefined;
+  setShop(value?: Shop): GetShopInfoResponse;
+  hasShop(): boolean;
+  clearShop(): GetShopInfoResponse;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): GetShopInfoResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: GetShopInfoResponse): GetShopInfoResponse.AsObject;
+  static serializeBinaryToWriter(message: GetShopInfoResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): GetShopInfoResponse;
+  static deserializeBinaryFromReader(message: GetShopInfoResponse, reader: jspb.BinaryReader): GetShopInfoResponse;
+}
+
+export namespace GetShopInfoResponse {
+  export type AsObject = {
+    shop?: Shop.AsObject,
+  }
+}
+
 export class GetShopMenuRequest extends jspb.Message {
   getShopid(): string;
   setShopid(value: string): GetShopMenuRequest;
@@ -585,10 +655,10 @@ export namespace GetPreviousOrdersRequest {
 }
 
 export class GetPreviousOrdersResponse extends jspb.Message {
-  getOrdersList(): Array<Order>;
-  setOrdersList(value: Array<Order>): GetPreviousOrdersResponse;
+  getOrdersList(): Array<PreviousOrderDetails>;
+  setOrdersList(value: Array<PreviousOrderDetails>): GetPreviousOrdersResponse;
   clearOrdersList(): GetPreviousOrdersResponse;
-  addOrders(value?: Order, index?: number): Order;
+  addOrders(value?: PreviousOrderDetails, index?: number): PreviousOrderDetails;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): GetPreviousOrdersResponse.AsObject;
@@ -600,7 +670,7 @@ export class GetPreviousOrdersResponse extends jspb.Message {
 
 export namespace GetPreviousOrdersResponse {
   export type AsObject = {
-    ordersList: Array<Order.AsObject>,
+    ordersList: Array<PreviousOrderDetails.AsObject>,
   }
 }
 

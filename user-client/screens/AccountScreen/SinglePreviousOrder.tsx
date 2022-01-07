@@ -1,12 +1,26 @@
 import { AntDesign, Feather, FontAwesome } from '@expo/vector-icons'
-import React, { useState } from 'react'
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-const SinglePreviousOrder = (props: any) => {
+import serverpb from "../../proto/server_pb";
+
+type SinglePreviousOrderProps = {
+    info: serverpb.PreviousOrderDetails;
+}
+
+const SinglePreviousOrder = (props: SinglePreviousOrderProps) => {
     
     const { info } = props;
 
     const [showDetails, setShowDetails] = useState<boolean>(false);
+    const [shopInfo] = useState<serverpb.Shop>(info.getShopinfo() || new serverpb.Shop());
+    const [orderInfo] = useState<serverpb.Order>(info.getOrderinfo() || new serverpb.Order());
+    const [itemsInfo] = useState<serverpb.MenuItem[]>(info.getItemsinfoList());
+    const [orderDetailsJson, setOrderDetailsJson] = useState();
+
+    useEffect(() => {
+        setOrderDetailsJson(JSON.parse(orderInfo.getOrderdetails()));
+    }, [orderInfo]);
 
     const reorderPressHandler = () => {
 
@@ -64,7 +78,7 @@ const SinglePreviousOrder = (props: any) => {
 
         const _calcWeight = (weight: number) => {
             if(weight <= 999) {
-                return props.weight + ' g';
+                return weight + ' g';
             }
     
             let kgs = weight/1000;
@@ -79,7 +93,12 @@ const SinglePreviousOrder = (props: any) => {
                 }}
             >
                 {
-                    info.orderDetails.map((_current: any, idx: number) => {
+                    itemsInfo.map((_current: serverpb.MenuItem, idx: number) => {
+
+                        if (orderDetailsJson && !orderDetailsJson[`${_current.getId()}`]) {
+                            return null;
+                        }
+
                         return (
                             <View
                                 key={idx}
@@ -90,7 +109,7 @@ const SinglePreviousOrder = (props: any) => {
                                 }}
                             >
                                 <Text style={{fontSize: 16, color: 'gray',}} numberOfLines={1}>
-                                    {_current.name} - {_calcWeight(_current.weight)}
+                                    { _current.getName() } - {_calcWeight( _current.getWeight() )}
                                 </Text>
 
                                 <View style={{
@@ -98,7 +117,9 @@ const SinglePreviousOrder = (props: any) => {
                                     alignItems: 'center',
                                 }}>
                                     <Feather style={{marginTop: 2,}} name="x" size={16} color="gray" />
-                                    <Text style={{fontSize: 16, color: 'gray',}}>{_current.qty}</Text>
+                                    <Text style={{fontSize: 16, color: 'gray',}}>
+                                        { orderDetailsJson && orderDetailsJson[`${_current.getId()}`] }
+                                    </Text>
                                 </View>
                             </View>
                         )
@@ -118,8 +139,8 @@ const SinglePreviousOrder = (props: any) => {
         >
             <View style={styles.container}>
                 <View style={styles.shopInfoContainer}>
-                    <Text style={styles.shopNameText}>{info.shopName}</Text>
-                    <Text style={styles.localityText}>{info.shopLocality}</Text>
+                    <Text style={styles.shopNameText}>{shopInfo.getName()}</Text>
+                    <Text style={styles.localityText}>{shopInfo.getLocality()}</Text>
                 </View>
 
                 <TouchableOpacity 
@@ -133,7 +154,9 @@ const SinglePreviousOrder = (props: any) => {
                         style={{marginTop: 2}} 
                     />
 
-                    <Text style={styles.totalPriceText}>{info.totalPrice}</Text>
+                    <Text style={styles.totalPriceText}>
+                        { orderInfo.getTotalprice() }
+                    </Text>
                     
                     { _renderArrow() }
                 </TouchableOpacity>
