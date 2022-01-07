@@ -1,8 +1,11 @@
 import { AntDesign, Feather, FontAwesome } from '@expo/vector-icons'
+import { CommonActions, useNavigation } from '@react-navigation/native';
 import React, { useEffect, useState } from 'react'
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import serverpb from "../../proto/server_pb";
+import { setCartDataLocal } from '../../utils/localStorage/cartData';
+import { setCartShopIdLocal } from '../../utils/localStorage/cartShopId';
 
 type SinglePreviousOrderProps = {
     info: serverpb.PreviousOrderDetails;
@@ -11,23 +14,50 @@ type SinglePreviousOrderProps = {
 const SinglePreviousOrder = (props: SinglePreviousOrderProps) => {
     
     const { info } = props;
+    const navigation = useNavigation();
 
     const [showDetails, setShowDetails] = useState<boolean>(false);
     const [shopInfo] = useState<serverpb.Shop>(info.getShopinfo() || new serverpb.Shop());
     const [orderInfo] = useState<serverpb.Order>(info.getOrderinfo() || new serverpb.Order());
     const [itemsInfo] = useState<serverpb.MenuItem[]>(info.getItemsinfoList());
-    const [orderDetailsJson, setOrderDetailsJson] = useState();
+    const [orderDetailsJson, setOrderDetailsJson] = useState<any>();
 
     useEffect(() => {
         setOrderDetailsJson(JSON.parse(orderInfo.getOrderdetails()));
     }, [orderInfo]);
 
     const reorderPressHandler = () => {
+        setCartShopIdLocal(shopInfo.getId());
 
+        let tempCart: any = {};
+
+        itemsInfo.forEach((_menuItem: serverpb.MenuItem) => {
+            tempCart = {
+                ...tempCart,
+                [_menuItem.getId()]: 0,
+            }
+        });
+
+        Object.keys(orderDetailsJson).forEach((key: string) => {
+            if (key in tempCart) {
+                tempCart = {
+                    ...tempCart,
+                    [key]: orderDetailsJson[key],
+                }
+            }
+        });
+
+        setCartDataLocal(JSON.stringify(tempCart)).then(() => {
+            navigation.dispatch(
+                CommonActions.navigate({
+                    name: 'Basket',
+                })
+            )
+        });
     }
 
     const rateOrderPressHandler = () => {
-        
+        alert("To be implemented!");
     }
 
     const _renderArrow = () => {

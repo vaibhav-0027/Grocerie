@@ -64,6 +64,7 @@ const BasketScreen = () => {
         }
 
         const reqParam = new serverpb.GetShopInfoRequest();
+        reqParam.setShopid(shopId);
 
         grpcClient.getShopInfo(reqParam, null, (err: Error, resp: serverpb.GetShopInfoResponse) => {
             if (err) {

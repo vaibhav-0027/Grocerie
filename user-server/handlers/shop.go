@@ -73,7 +73,7 @@ func (h *shopHandler) GetShopInfo(ctx context.Context, req *serverpb.GetShopInfo
 	shopId := req.GetShopId()
 	shopInfo := &models.Shop{}
 
-	resp := repo.Where("shop_id = ?", shopId).Find(&shopInfo)
+	resp := repo.Where("id = ?", shopId).Find(&shopInfo)
 	if resp.Error != nil {
 		return nil, status.Errorf(
 			codes.Internal,
