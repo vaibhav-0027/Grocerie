@@ -9,15 +9,6 @@ import ShowTotal from '../../components/ShowTotal';
 import serverpb from "../../proto/server_pb";
 import grpcClient from '../../utils/grpcClient';
 
-type ItemProp = {
-    name: string;
-    price: number;
-    id: string;
-    category: string;
-    bestSeller: boolean;
-    weight: number;
-}
-
 type InfoProps = {
     name: string;
     shopId: string;
@@ -68,29 +59,26 @@ const BasketScreen = () => {
 
     // fetch shop information when shopId is loaded from local storage
     useEffect(() => {
-        if(shopId.length === 0) {
+        if(shopId.length === 0 || showEmpty) {
             return ;
         }
 
-        // TODO: replace this with getSingleShopInfo
-        const reqParam = new serverpb.GetShopListRequest();
+        const reqParam = new serverpb.GetShopInfoRequest();
 
-        grpcClient.getShopList(reqParam, null, (err: Error, resp: serverpb.GetShopListResponse) => {
+        grpcClient.getShopInfo(reqParam, null, (err: Error, resp: serverpb.GetShopInfoResponse) => {
             if (err) {
                 console.error(err);
                 return;
             }
 
-            resp.getShopsList().map((_currentShop: serverpb.Shop) => {
-                if(_currentShop.getId() === shopId) {
-                    setShopInfo({
-                        name: _currentShop.getName(),
-                        locality: _currentShop.getLocality(),
-                        shopId,
-                        typesList: _currentShop.getTypesList(),
-                        menu: [],
-                    });
-                }
+            const _currentShop = resp.getShop() || new serverpb.Shop();
+
+            setShopInfo({
+                name: _currentShop.getName(),
+                locality: _currentShop.getLocality(),
+                shopId,
+                typesList: _currentShop.getTypesList(),
+                menu: [],
             });
         });
 
@@ -110,7 +98,7 @@ const BasketScreen = () => {
                 }
             })
         })
-    }, [shopId]);
+    }, [shopId, showEmpty]);
 
     useEffect(() => {
         if(!shopInfo) {
